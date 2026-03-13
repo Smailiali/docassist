@@ -41,8 +41,9 @@ export function sendChatMessage(documentId, message) {
   });
 }
 
-export async function generateSummary(documentId) {
-  const res = await fetch(`${BASE}/documents/${documentId}/summary`, { method: 'POST' });
+export async function generateSummary(documentId, force = false) {
+  const url = `${BASE}/documents/${documentId}/summary${force ? '?force=true' : ''}`;
+  const res = await fetch(url, { method: 'POST' });
   if (!res.ok) throw new Error('Failed to generate summary');
   return res.json();
 }

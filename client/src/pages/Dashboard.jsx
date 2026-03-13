@@ -19,8 +19,12 @@ export default function Dashboard() {
 
   const { documents, loading: docsLoading, error: docsError, upload, remove } = useDocuments();
   const { messages, streaming, thinking, sendMessage } = useChat(selectedDoc?.id);
-  const { summary, terms, deadlines, loading: aiLoading, fetchSummary, fetchTerms, fetchDeadlines } =
-    useAIFeatures(selectedDoc?.id);
+  const {
+    summary, terms, deadlines,
+    loading: aiLoading, error: aiError,
+    fetchSummary, regenerateSummary,
+    fetchTerms, fetchDeadlines,
+  } = useAIFeatures(selectedDoc?.id);
 
   async function handleUpload(file) {
     const doc = await upload(file);
@@ -71,7 +75,13 @@ export default function Dashboard() {
                   <ChatWindow key={selectedDoc.id} messages={messages} streaming={streaming} thinking={thinking} onSend={sendMessage} />
                 )}
                 {activeTab === 'Summary' && (
-                  <SummaryView summary={summary} loading={aiLoading.summary} onGenerate={fetchSummary} />
+                  <SummaryView
+                    summary={summary}
+                    loading={aiLoading.summary}
+                    error={aiError.summary}
+                    onGenerate={fetchSummary}
+                    onRegenerate={regenerateSummary}
+                  />
                 )}
                 {activeTab === 'Key Terms' && (
                   <KeyTermsView terms={terms} loading={aiLoading.terms} onExtract={fetchTerms} />
