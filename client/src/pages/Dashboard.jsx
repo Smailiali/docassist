@@ -18,7 +18,7 @@ export default function Dashboard() {
   const [showUpload, setShowUpload] = useState(false);
 
   const { documents, loading: docsLoading, error: docsError, upload, remove } = useDocuments();
-  const { messages, streaming, sendMessage } = useChat(selectedDoc?.id);
+  const { messages, streaming, thinking, sendMessage } = useChat(selectedDoc?.id);
   const { summary, terms, deadlines, loading: aiLoading, fetchSummary, fetchTerms, fetchDeadlines } =
     useAIFeatures(selectedDoc?.id);
 
@@ -68,7 +68,7 @@ export default function Dashboard() {
               {/* Tab content */}
               <div className="flex-1 overflow-hidden">
                 {activeTab === 'Chat' && (
-                  <ChatWindow messages={messages} streaming={streaming} onSend={sendMessage} />
+                  <ChatWindow messages={messages} streaming={streaming} thinking={thinking} onSend={sendMessage} />
                 )}
                 {activeTab === 'Summary' && (
                   <SummaryView summary={summary} loading={aiLoading.summary} onGenerate={fetchSummary} />
