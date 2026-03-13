@@ -1,0 +1,82 @@
+import { useState } from 'react';
+import Header from '../components/Header.jsx';
+import Sidebar from '../components/Sidebar.jsx';
+import ChatWindow from '../components/ChatWindow.jsx';
+import SummaryView from '../components/SummaryView.jsx';
+import KeyTermsView from '../components/KeyTermsView.jsx';
+import DeadlinesView from '../components/DeadlinesView.jsx';
+import UploadModal from '../components/UploadModal.jsx';
+import { useDocuments } from '../hooks/useDocuments.js';
+import { useChat } from '../hooks/useChat.js';
+import { useAIFeatures } from '../hooks/useAIFeatures.js';
+
+const TABS = ['Chat', 'Summary', 'Key Terms', 'Deadlines'];
+
+export default function Dashboard() {
+  const [selectedDoc, setSelectedDoc] = useState(null);
+  const [activeTab, setActiveTab] = useState('Chat');
+  const [showUpload, setShowUpload] = useState(false);
+
+  const { documents, loading: docsLoading, upload, remove } = useDocuments();
+  const { messages, streaming, sendMessage } = useChat(selectedDoc?.id);
+  const { summary, terms, deadlines, loading: aiLoading, fetchSummary, fetchTerms, fetchDeadlines } =
+    useAIFeatures(selectedDoc?.id);
+
+  return (
+    <div className="flex flex-col h-screen bg-white">
+      <Header />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar
+          documents={documents}
+          selectedId={selectedDoc?.id}
+          onSelect={setSelectedDoc}
+          onUpload={() => setShowUpload(true)}
+        />
+        <main className="flex-1 flex flex-col overflow-hidden">
+          {selectedDoc ? (
+            <>
+              {/* Tab bar */}
+              <div className="border-b border-gray-200 bg-white px-6 flex gap-1 shrink-0">
+                {TABS.map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === tab
+                        ? 'border-[#2E75B6] text-[#2E75B6]'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+              {/* Tab content */}
+              <div className="flex-1 overflow-hidden">
+                {activeTab === 'Chat' && (
+                  <ChatWindow messages={messages} streaming={streaming} onSend={sendMessage} />
+                )}
+                {activeTab === 'Summary' && (
+                  <SummaryView summary={summary} loading={aiLoading.summary} onGenerate={fetchSummary} />
+                )}
+                {activeTab === 'Key Terms' && (
+                  <KeyTermsView terms={terms} loading={aiLoading.terms} onExtract={fetchTerms} />
+                )}
+                {activeTab === 'Deadlines' && (
+                  <DeadlinesView deadlines={deadlines} loading={aiLoading.deadlines} onExtract={fetchDeadlines} />
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">
+              Select a document from the sidebar or upload a new one to get started.
+            </div>
+          )}
+        </main>
+      </div>
+      {showUpload && (
+        <UploadModal onUpload={upload} onClose={() => setShowUpload(false)} />
+      )}
+    </div>
+  );
+}
