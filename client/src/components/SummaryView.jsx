@@ -58,7 +58,7 @@ export default function SummaryView({ summary, loading, error, onGenerate, onReg
   const { document_type, overview, parties = [], key_topics = [] } = summary;
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+    <div className="h-full overflow-y-auto p-6 bg-gray-50">
       <div className="max-w-3xl bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
 
         {/* Document type badge */}
