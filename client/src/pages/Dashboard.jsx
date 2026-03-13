@@ -22,6 +22,17 @@ export default function Dashboard() {
   const { summary, terms, deadlines, loading: aiLoading, fetchSummary, fetchTerms, fetchDeadlines } =
     useAIFeatures(selectedDoc?.id);
 
+  async function handleUpload(file) {
+    const doc = await upload(file);
+    setSelectedDoc(doc);
+    setActiveTab('Chat');
+  }
+
+  async function handleDelete(id) {
+    await remove(id);
+    if (selectedDoc?.id === id) setSelectedDoc(null);
+  }
+
   return (
     <div className="flex flex-col h-screen bg-white">
       <Header />
@@ -31,6 +42,8 @@ export default function Dashboard() {
           selectedId={selectedDoc?.id}
           onSelect={setSelectedDoc}
           onUpload={() => setShowUpload(true)}
+          onDelete={handleDelete}
+          loading={docsLoading}
         />
         <main className="flex-1 flex flex-col overflow-hidden">
           {selectedDoc ? (
@@ -75,7 +88,7 @@ export default function Dashboard() {
         </main>
       </div>
       {showUpload && (
-        <UploadModal onUpload={upload} onClose={() => setShowUpload(false)} />
+        <UploadModal onUpload={handleUpload} onClose={() => setShowUpload(false)} />
       )}
     </div>
   );
