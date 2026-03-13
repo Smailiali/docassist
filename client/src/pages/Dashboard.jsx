@@ -23,7 +23,8 @@ export default function Dashboard() {
     summary, terms, deadlines,
     loading: aiLoading, error: aiError,
     fetchSummary, regenerateSummary,
-    fetchTerms, fetchDeadlines,
+    fetchTerms, regenerateTerms,
+    fetchDeadlines,
   } = useAIFeatures(selectedDoc?.id);
 
   async function handleUpload(file) {
@@ -84,7 +85,13 @@ export default function Dashboard() {
                   />
                 )}
                 {activeTab === 'Key Terms' && (
-                  <KeyTermsView terms={terms} loading={aiLoading.terms} onExtract={fetchTerms} />
+                  <KeyTermsView
+                    terms={terms}
+                    loading={aiLoading.terms}
+                    error={aiError.terms}
+                    onGenerate={fetchTerms}
+                    onRegenerate={regenerateTerms}
+                  />
                 )}
                 {activeTab === 'Deadlines' && (
                   <DeadlinesView deadlines={deadlines} loading={aiLoading.deadlines} onExtract={fetchDeadlines} />

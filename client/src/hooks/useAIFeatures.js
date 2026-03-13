@@ -57,6 +57,20 @@ export function useAIFeatures(documentId) {
     }
   }
 
+  async function regenerateTerms() {
+    setTerms(null);
+    setLoading((prev) => ({ ...prev, terms: true }));
+    setError((prev) => ({ ...prev, terms: null }));
+    try {
+      const data = await extractTerms(documentId, true);
+      setTerms(data);
+    } catch (err) {
+      setError((prev) => ({ ...prev, terms: err.message }));
+    } finally {
+      setLoading((prev) => ({ ...prev, terms: false }));
+    }
+  }
+
   async function fetchDeadlines() {
     setLoading((prev) => ({ ...prev, deadlines: true }));
     setError((prev) => ({ ...prev, deadlines: null }));
@@ -74,6 +88,7 @@ export function useAIFeatures(documentId) {
     summary, terms, deadlines,
     loading, error,
     fetchSummary, regenerateSummary,
-    fetchTerms, fetchDeadlines,
+    fetchTerms, regenerateTerms,
+    fetchDeadlines,
   };
 }

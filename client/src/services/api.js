@@ -48,9 +48,10 @@ export async function generateSummary(documentId, force = false) {
   return res.json();
 }
 
-export async function extractTerms(documentId) {
-  const res = await fetch(`${BASE}/documents/${documentId}/terms`, { method: 'POST' });
-  if (!res.ok) throw new Error('Failed to extract terms');
+export async function extractTerms(documentId, force = false) {
+  const url = `${BASE}/documents/${documentId}/terms${force ? '?force=true' : ''}`;
+  const res = await fetch(url, { method: 'POST' });
+  if (!res.ok) throw new Error('Failed to extract key terms');
   return res.json();
 }
 
