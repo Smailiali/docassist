@@ -17,7 +17,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('Chat');
   const [showUpload, setShowUpload] = useState(false);
 
-  const { documents, loading: docsLoading, upload, remove } = useDocuments();
+  const { documents, loading: docsLoading, error: docsError, upload, remove } = useDocuments();
   const { messages, streaming, sendMessage } = useChat(selectedDoc?.id);
   const { summary, terms, deadlines, loading: aiLoading, fetchSummary, fetchTerms, fetchDeadlines } =
     useAIFeatures(selectedDoc?.id);
@@ -44,6 +44,7 @@ export default function Dashboard() {
           onUpload={() => setShowUpload(true)}
           onDelete={handleDelete}
           loading={docsLoading}
+          error={docsError}
         />
         <main className="flex-1 flex flex-col overflow-hidden">
           {selectedDoc ? (

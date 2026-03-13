@@ -10,7 +10,7 @@ function SkeletonItem() {
   );
 }
 
-export default function Sidebar({ documents, selectedId, onSelect, onUpload, onDelete, loading }) {
+export default function Sidebar({ documents, selectedId, onSelect, onUpload, onDelete, loading, error }) {
   const [deletingId, setDeletingId] = useState(null);
 
   async function handleDelete(e, id) {
@@ -40,6 +40,10 @@ export default function Sidebar({ documents, selectedId, onSelect, onUpload, onD
             <SkeletonItem />
             <SkeletonItem />
           </>
+        ) : error ? (
+          <p className="text-xs text-red-400 text-center mt-8 px-4">
+            Failed to load documents. Check your connection.
+          </p>
         ) : documents.length === 0 ? (
           <p className="text-xs text-gray-400 text-center mt-8 px-4">
             No documents yet. Upload a PDF to get started.
