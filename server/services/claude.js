@@ -16,17 +16,21 @@ export async function streamChat(systemPrompt, messages, res) {
     messages,
   });
 
+  let fullText = '';
+
   for await (const chunk of stream) {
     if (
       chunk.type === 'content_block_delta' &&
       chunk.delta.type === 'text_delta'
     ) {
+      fullText += chunk.delta.text;
       res.write(`data: ${JSON.stringify({ text: chunk.delta.text })}\n\n`);
     }
   }
 
   res.write('data: [DONE]\n\n');
   res.end();
+  return fullText;
 }
 
 /**
