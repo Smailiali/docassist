@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { generateSummary, extractTerms, extractDeadlines } from '../services/api.js';
 
 export function useAIFeatures(documentId) {
@@ -6,6 +6,14 @@ export function useAIFeatures(documentId) {
   const [terms, setTerms] = useState(null);
   const [deadlines, setDeadlines] = useState(null);
   const [loading, setLoading] = useState({ summary: false, terms: false, deadlines: false });
+
+  // Reset all AI data when the selected document changes
+  useEffect(() => {
+    setSummary(null);
+    setTerms(null);
+    setDeadlines(null);
+    setLoading({ summary: false, terms: false, deadlines: false });
+  }, [documentId]);
 
   async function fetchSummary() {
     setLoading((prev) => ({ ...prev, summary: true }));

@@ -68,7 +68,7 @@ export default function Dashboard() {
               {/* Tab content */}
               <div className="flex-1 overflow-hidden">
                 {activeTab === 'Chat' && (
-                  <ChatWindow messages={messages} streaming={streaming} thinking={thinking} onSend={sendMessage} />
+                  <ChatWindow key={selectedDoc.id} messages={messages} streaming={streaming} thinking={thinking} onSend={sendMessage} />
                 )}
                 {activeTab === 'Summary' && (
                   <SummaryView summary={summary} loading={aiLoading.summary} onGenerate={fetchSummary} />
