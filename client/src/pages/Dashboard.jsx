@@ -10,9 +10,12 @@ import UploadModal from '../components/UploadModal.jsx';
 import { useDocuments } from '../hooks/useDocuments.js';
 import { useChat } from '../hooks/useChat.js';
 import { useAIFeatures } from '../hooks/useAIFeatures.js';
-import { exportDocument } from '../services/api.js';
+import { exportDocument, getDocument, triggerAnalysis } from '../services/api.js';
 
 const TABS = ['Chat', 'Summary', 'Key Terms', 'Deadlines'];
+
+// Which tab maps to which insight field
+const TAB_INSIGHT = { Summary: 'summary', 'Key Terms': 'terms', Deadlines: 'deadlines' };
 
 export default function Dashboard({ user, logout }) {
   const [selectedDoc, setSelectedDoc] = useState(null);
@@ -21,7 +24,28 @@ export default function Dashboard({ user, logout }) {
   const [showExport, setShowExport] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [docInsights, setDocInsights] = useState({ summary: false, terms: false, deadlines: false });
   const exportRef = useRef(null);
+
+  // Fetch insight readiness when a document is selected; trigger background analysis if needed
+  useEffect(() => {
+    if (!selectedDoc) {
+      setDocInsights({ summary: false, terms: false, deadlines: false });
+      return;
+    }
+    getDocument(selectedDoc.id).then((doc) => {
+      const insights = {
+        summary: doc.summary !== null,
+        terms: doc.key_terms !== null,
+        deadlines: doc.deadlines !== null,
+      };
+      setDocInsights(insights);
+      // Trigger background analysis for existing docs that have no insights yet
+      if (!insights.summary && !insights.terms && !insights.deadlines) {
+        triggerAnalysis(selectedDoc.id).catch(() => {});
+      }
+    }).catch(() => {});
+  }, [selectedDoc?.id]);
 
   // Close export dropdown on outside click
   useEffect(() => {
@@ -103,7 +127,12 @@ export default function Dashboard({ user, logout }) {
                         : 'border-transparent text-gray-500 hover:text-gray-700'
                     }`}
                   >
-                    {tab}
+                    <span className="flex items-center gap-1.5">
+                      {tab}
+                      {TAB_INSIGHT[tab] && docInsights[TAB_INSIGHT[tab]] && (
+                        <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
+                      )}
+                    </span>
                   </button>
                 ))}
 

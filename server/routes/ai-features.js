@@ -1,149 +1,56 @@
 import { Router } from 'express';
 import pool from '../db/index.js';
-import { complete } from '../services/claude.js';
-import { summaryPrompt, keyTermsPrompt, deadlinesPrompt } from '../services/prompts.js';
+import {
+  generateSummaryForDoc,
+  generateTermsForDoc,
+  generateDeadlinesForDoc,
+  analyzeDocument,
+} from '../services/analyze.js';
 
 const router = Router();
 
-// Strip optional markdown code fence Claude sometimes adds
-function extractJSON(text) {
-  const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  return match ? match[1].trim() : text.trim();
-}
+// POST /api/documents/:id/analyze
+// Kicks off all three AI features concurrently in the background.
+// Responds immediately with 202 — client does not wait.
+router.post('/:id/analyze', (req, res) => {
+  const { id } = req.params;
+  res.status(202).json({ status: 'processing' });
+  analyzeDocument(id, req.user.id).catch((err) =>
+    console.error(`Analyze error (doc ${id}):`, err.message)
+  );
+});
 
 // POST /api/documents/:id/summary
-// Pass ?force=true to bypass cache and regenerate
 router.post('/:id/summary', async (req, res) => {
-  const { id } = req.params;
-  const force = req.query.force === 'true';
-
   try {
-    const docResult = await pool.query(
-      'SELECT text_content, summary FROM documents WHERE id = $1 AND user_id = $2',
-      [id, req.user.id]
-    );
-    if (docResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Document not found' });
-    }
-
-    const { text_content, summary } = docResult.rows[0];
-
-    if (summary && !force) {
-      return res.json(summary);
-    }
-
-    let parsed;
-    const raw = await complete(summaryPrompt(text_content), 'Generate the summary.');
-    try {
-      parsed = JSON.parse(extractJSON(raw));
-    } catch {
-      const raw2 = await complete(summaryPrompt(text_content), 'Generate the summary.');
-      try {
-        parsed = JSON.parse(extractJSON(raw2));
-      } catch {
-        return res.status(500).json({ error: 'Failed to generate summary' });
-      }
-    }
-
-    await pool.query(
-      'UPDATE documents SET summary = $1 WHERE id = $2 AND user_id = $3',
-      [JSON.stringify(parsed), id, req.user.id]
-    );
-
-    res.json(parsed);
+    const data = await generateSummaryForDoc(req.params.id, req.user.id, req.query.force === 'true');
+    res.json(data);
   } catch (err) {
+    if (err.message === 'Document not found') return res.status(404).json({ error: err.message });
     console.error('Summary error:', err);
     res.status(500).json({ error: 'Failed to generate summary' });
   }
 });
 
 // POST /api/documents/:id/terms
-// Pass ?force=true to bypass cache and regenerate
 router.post('/:id/terms', async (req, res) => {
-  const { id } = req.params;
-  const force = req.query.force === 'true';
-
   try {
-    const docResult = await pool.query(
-      'SELECT text_content, key_terms FROM documents WHERE id = $1 AND user_id = $2',
-      [id, req.user.id]
-    );
-    if (docResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Document not found' });
-    }
-
-    const { text_content, key_terms } = docResult.rows[0];
-
-    if (key_terms && !force) {
-      return res.json(key_terms);
-    }
-
-    let parsed;
-    const raw = await complete(keyTermsPrompt(text_content), 'Extract the key terms.');
-    try {
-      parsed = JSON.parse(extractJSON(raw));
-    } catch {
-      const raw2 = await complete(keyTermsPrompt(text_content), 'Extract the key terms.');
-      try {
-        parsed = JSON.parse(extractJSON(raw2));
-      } catch {
-        return res.status(500).json({ error: 'Failed to extract key terms' });
-      }
-    }
-
-    await pool.query(
-      'UPDATE documents SET key_terms = $1 WHERE id = $2 AND user_id = $3',
-      [JSON.stringify(parsed), id, req.user.id]
-    );
-
-    res.json(parsed);
+    const data = await generateTermsForDoc(req.params.id, req.user.id, req.query.force === 'true');
+    res.json(data);
   } catch (err) {
+    if (err.message === 'Document not found') return res.status(404).json({ error: err.message });
     console.error('Terms error:', err);
     res.status(500).json({ error: 'Failed to extract key terms' });
   }
 });
 
 // POST /api/documents/:id/deadlines
-// Pass ?force=true to bypass cache and regenerate
 router.post('/:id/deadlines', async (req, res) => {
-  const { id } = req.params;
-  const force = req.query.force === 'true';
-
   try {
-    const docResult = await pool.query(
-      'SELECT text_content, deadlines FROM documents WHERE id = $1 AND user_id = $2',
-      [id, req.user.id]
-    );
-    if (docResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Document not found' });
-    }
-
-    const { text_content, deadlines } = docResult.rows[0];
-
-    if (deadlines && !force) {
-      return res.json(deadlines);
-    }
-
-    let parsed;
-    const raw = await complete(deadlinesPrompt(text_content), 'Detect the deadlines.');
-    try {
-      parsed = JSON.parse(extractJSON(raw));
-    } catch {
-      const raw2 = await complete(deadlinesPrompt(text_content), 'Detect the deadlines.');
-      try {
-        parsed = JSON.parse(extractJSON(raw2));
-      } catch {
-        return res.status(500).json({ error: 'Failed to extract deadlines' });
-      }
-    }
-
-    await pool.query(
-      'UPDATE documents SET deadlines = $1 WHERE id = $2 AND user_id = $3',
-      [JSON.stringify(parsed), id, req.user.id]
-    );
-
-    res.json(parsed);
+    const data = await generateDeadlinesForDoc(req.params.id, req.user.id, req.query.force === 'true');
+    res.json(data);
   } catch (err) {
+    if (err.message === 'Document not found') return res.status(404).json({ error: err.message });
     console.error('Deadlines error:', err);
     res.status(500).json({ error: 'Failed to extract deadlines' });
   }
@@ -235,19 +142,13 @@ router.get('/:id/export', async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="docassist-${safeTitle}.pdf"`);
     doc.pipe(res);
 
-    // Header
     doc.fontSize(20).font('Helvetica-Bold').fillColor('#111827').text(title);
     doc.fontSize(10).font('Helvetica').fillColor('#9ca3af').text(`Exported ${exportDate}`);
     doc.fillColor('#111827');
 
     function hr() {
       doc.moveDown(0.8);
-      doc
-        .moveTo(50, doc.y)
-        .lineTo(doc.page.width - 50, doc.y)
-        .strokeColor('#e5e7eb')
-        .lineWidth(1)
-        .stroke();
+      doc.moveTo(50, doc.y).lineTo(doc.page.width - 50, doc.y).strokeColor('#e5e7eb').lineWidth(1).stroke();
       doc.moveDown(0.5);
     }
 
@@ -279,9 +180,7 @@ router.get('/:id/export', async (req, res) => {
       if (summary.key_topics?.length) {
         doc.font('Helvetica-Bold').text('Key Topics');
         doc.moveDown(0.2);
-        summary.key_topics.forEach((t) => {
-          doc.font('Helvetica').text(`  • ${t}`, { lineGap: 2 });
-        });
+        summary.key_topics.forEach((t) => doc.font('Helvetica').text(`  • ${t}`, { lineGap: 2 }));
       }
     }
 

@@ -3,6 +3,7 @@ import path from 'path';
 import upload from '../middleware/upload.js';
 import pool from '../db/index.js';
 import { extractTextFromPDF } from '../services/pdf.js';
+import { analyzeDocument } from '../services/analyze.js';
 
 const router = Router();
 
@@ -30,7 +31,13 @@ router.post('/upload', (req, res, next) => {
       [title, req.file.path, text, pageCount, req.user.id]
     );
 
-    res.status(201).json(result.rows[0]);
+    const doc = result.rows[0];
+    res.status(201).json(doc);
+
+    // Fire-and-forget: pre-generate all AI features in the background
+    analyzeDocument(doc.id, req.user.id).catch((err) =>
+      console.error('Background analysis failed after upload:', err.message)
+    );
   } catch (err) {
     console.error('Upload error:', err);
     res.status(500).json({ error: 'Failed to process PDF' });

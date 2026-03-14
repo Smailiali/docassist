@@ -88,6 +88,13 @@ export async function extractDeadlines(documentId, force = false) {
   return res.json();
 }
 
+export async function triggerAnalysis(documentId) {
+  await fetch(`${BASE}/documents/${documentId}/analyze`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+}
+
 export function exportDocument(documentId, format = 'pdf') {
   window.open(`${BASE}/documents/${documentId}/export?format=${format}`, '_blank');
 }
