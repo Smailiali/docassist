@@ -72,18 +72,20 @@ export async function analyzeDocument(docId, userId) {
   const key = `${userId}:${docId}`;
   if (analyzing.has(key)) return;
   analyzing.add(key);
+  // Run sequentially so background analysis doesn't compete with user-initiated chat
+  const steps = [
+    ['summary', () => generateSummaryForDoc(docId, userId)],
+    ['key terms', () => generateTermsForDoc(docId, userId)],
+    ['deadlines', () => generateDeadlinesForDoc(docId, userId)],
+  ];
   try {
-    const results = await Promise.allSettled([
-      generateSummaryForDoc(docId, userId),
-      generateTermsForDoc(docId, userId),
-      generateDeadlinesForDoc(docId, userId),
-    ]);
-    const names = ['summary', 'key terms', 'deadlines'];
-    results.forEach((r, i) => {
-      if (r.status === 'rejected') {
-        console.error(`Background analysis failed for ${names[i]} (doc ${docId}):`, r.reason?.message);
+    for (const [name, fn] of steps) {
+      try {
+        await fn();
+      } catch (err) {
+        console.error(`Background analysis failed for ${name} (doc ${docId}):`, err.message);
       }
-    });
+    }
   } finally {
     analyzing.delete(key);
   }
