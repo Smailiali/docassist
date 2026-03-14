@@ -1,4 +1,6 @@
 const BASE = '/api';
+// SSE streaming bypasses the Vite proxy (proxy drops the connection on ECONNRESET when stream ends)
+const STREAM_BASE = `${import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3002'}/api`;
 
 async function apiFetch(url, options = {}) {
   const res = await fetch(url, { credentials: 'include', ...options });
@@ -57,9 +59,9 @@ export async function getMessages(documentId) {
   return res.json();
 }
 
-// Returns a raw Response for SSE streaming
+// Returns a raw Response for SSE streaming — uses direct backend URL to bypass Vite proxy
 export function sendChatMessage(documentId, message) {
-  return fetch(`${BASE}/documents/${documentId}/chat`, {
+  return fetch(`${STREAM_BASE}/documents/${documentId}/chat`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
