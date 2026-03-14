@@ -2,7 +2,7 @@ import { Router } from 'express';
 import path from 'path';
 import upload from '../middleware/upload.js';
 import pool from '../db/index.js';
-import { extractTextFromPDF } from '../services/pdf.js';
+import { extractTextFromBuffer } from '../services/pdf.js';
 import { analyzeDocument } from '../services/analyze.js';
 
 const router = Router();
@@ -33,15 +33,15 @@ router.post('/upload', (req, res, next) => {
   }
 
   try {
-    const { text, pageCount } = await extractTextFromPDF(req.file.path);
+    const { text, pageCount } = await extractTextFromBuffer(req.file.buffer);
     const rawName = path.basename(req.file.originalname, path.extname(req.file.originalname));
     const title = cleanTitle(rawName);
 
     const result = await pool.query(
-      `INSERT INTO documents (title, file_path, text_content, page_count, user_id)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, title, file_path, page_count, created_at`,
-      [title, req.file.path, text, pageCount, req.user.id]
+      `INSERT INTO documents (title, file_path, file_data, text_content, page_count, user_id)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, title, page_count, created_at`,
+      [title, null, req.file.buffer, text, pageCount, req.user.id]
     );
 
     const doc = result.rows[0];

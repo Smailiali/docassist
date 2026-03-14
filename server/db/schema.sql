@@ -23,13 +23,16 @@ CREATE TABLE IF NOT EXISTS documents (
   id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
   title VARCHAR(255) NOT NULL,
-  file_path VARCHAR(500),
+  file_path VARCHAR(500),              -- legacy: kept for existing rows; null for new uploads
+  file_data BYTEA,                     -- raw PDF binary (replaces filesystem storage)
   text_content TEXT NOT NULL,
   page_count INTEGER,
   summary JSONB,
   key_terms JSONB,
   deadlines JSONB,
   created_at TIMESTAMP DEFAULT NOW()
+  -- NOTE: Neon free tier has 512MB storage limit. PDFs stored as BYTEA count against this.
+  -- For a portfolio/demo project this is acceptable.
 );
 
 CREATE TABLE IF NOT EXISTS messages (

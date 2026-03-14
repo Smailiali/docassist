@@ -9,3 +9,11 @@ export async function extractTextFromPDF(filePath) {
     pageCount: data.numpages,
   };
 }
+
+export async function extractTextFromBuffer(buffer) {
+  const data = await pdfParse(buffer);
+  return {
+    text: data.text,
+    pageCount: data.numpages,
+  };
+}

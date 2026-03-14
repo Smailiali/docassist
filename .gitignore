@@ -6,3 +6,6 @@ dist/
 # Claude / AI tooling
 .claude/
 CLAUDE.md
+
+# Local-only deployment notes
+DEPLOYMENT.md

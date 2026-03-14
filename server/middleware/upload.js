@@ -1,13 +1,8 @@
 import multer from 'multer';
-import path from 'path';
 
-const storage = multer.diskStorage({
-  destination: 'uploads/',
-  filename: (_req, file, cb) => {
-    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    cb(null, `${unique}${path.extname(file.originalname)}`);
-  },
-});
+// Memory storage: req.file.buffer holds the PDF bytes directly.
+// No files are written to disk — required for cloud hosts where the filesystem is ephemeral.
+const storage = multer.memoryStorage();
 
 const fileFilter = (_req, file, cb) => {
   if (file.mimetype === 'application/pdf') {

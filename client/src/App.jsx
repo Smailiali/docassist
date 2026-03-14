@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth.js';
 import Dashboard from './pages/Dashboard.jsx';
 import Login from './pages/Login.jsx';
+import Privacy from './pages/Privacy.jsx';
 
 function ProtectedRoute({ children }) {
   const { user, loading, logout } = useAuth();
@@ -32,6 +33,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/privacy" element={<Privacy />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

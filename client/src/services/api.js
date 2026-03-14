@@ -1,6 +1,11 @@
-const BASE = '/api';
-// SSE streaming bypasses the Vite proxy (proxy drops the connection on ECONNRESET when stream ends)
-const STREAM_BASE = `${import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3002'}/api`;
+// In production VITE_API_URL is the Railway backend origin (e.g. https://myapp.railway.app).
+// In development it's unset and we fall back to the Vite proxy (/api) for regular calls
+// and a direct URL for SSE streaming (which the proxy can't handle).
+const API_ORIGIN = import.meta.env.VITE_API_URL;
+const BASE = API_ORIGIN ? `${API_ORIGIN}/api` : '/api';
+const STREAM_BASE = API_ORIGIN
+  ? `${API_ORIGIN}/api`
+  : `${import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3002'}/api`;
 
 async function apiFetch(url, options = {}) {
   const res = await fetch(url, { credentials: 'include', ...options });

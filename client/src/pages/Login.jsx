@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 flex flex-col items-center justify-center px-4">
@@ -32,7 +34,10 @@ export default function Login() {
 
         {/* Footer note */}
         <p className="text-center text-xs text-gray-400 mt-6">
-          Your documents are private and only visible to you
+          Your documents are private and only visible to you ·{' '}
+          <Link to="/privacy" className="text-[#2E75B6] hover:underline">
+            Privacy Policy
+          </Link>
         </p>
       </div>
     </div>

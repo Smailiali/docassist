@@ -14,11 +14,16 @@ import { testConnection } from './db/index.js';
 
 const app = express();
 const PORT = process.env.PORT || 3002;
+const isProd = process.env.NODE_ENV === 'production';
+
+// Required so Express trusts the X-Forwarded-* headers set by Railway's proxy,
+// which is needed for secure cookies to work correctly in production.
+if (isProd) app.set('trust proxy', 1);
 
 const PgSession = connectPgSimple(session);
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true,
 }));
 app.use(express.json());
@@ -31,7 +36,10 @@ app.use(session({
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    // In production the frontend and backend are on different domains (Vercel vs Railway),
+    // so cookies must be secure + sameSite:'none' to be sent cross-origin.
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
   },
 }));
 
