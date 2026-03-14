@@ -16,7 +16,11 @@ export async function uploadDocument(file) {
   const form = new FormData();
   form.append('file', file);
   const res = await fetch(`${BASE}/documents/upload`, { method: 'POST', body: form });
-  if (!res.ok) throw new Error('Upload failed');
+  if (!res.ok) {
+    let msg = 'Failed to process document. Please try again.';
+    try { const body = await res.json(); msg = body.error || msg; } catch {}
+    throw new Error(msg);
+  }
   return res.json();
 }
 

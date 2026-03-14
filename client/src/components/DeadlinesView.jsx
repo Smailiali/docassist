@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, CalendarClock, CalendarX2 } from 'lucide-react';
 
 const URGENCY_DOT = {
   high:   'bg-red-500',
@@ -103,7 +103,7 @@ export default function DeadlinesView({ deadlines, loading, error, onGenerate, o
           <p className="text-sm text-red-600">{error}</p>
           <button
             onClick={onGenerate}
-            className="ml-4 text-sm text-[#2E75B6] hover:underline shrink-0"
+            className="ml-4 text-sm text-[#2E75B6] hover:underline shrink-0 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded"
           >
             Retry
           </button>
@@ -112,25 +112,33 @@ export default function DeadlinesView({ deadlines, loading, error, onGenerate, o
     );
   }
 
-  if (!deadlines) return null;
+  if (!deadlines) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center gap-3 text-center px-6 bg-gray-50">
+        <CalendarClock size={40} className="text-gray-300" />
+        <p className="text-gray-500 text-sm">Deadlines not extracted yet</p>
+        <button
+          onClick={onGenerate}
+          className="bg-[#2E75B6] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#245d94] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
+        >
+          Extract Deadlines
+        </button>
+      </div>
+    );
+  }
 
   if (deadlines.length === 0) {
     return (
-      <div className="h-full overflow-y-auto p-6 bg-gray-50">
-        <div className="max-w-2xl">
-          <p className="text-sm text-gray-400 text-center py-16">
-            No deadlines or time-sensitive obligations were found in this document.
-          </p>
-          <div className="text-center">
-            <button
-              onClick={onRegenerate}
-              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors mx-auto"
-            >
-              <RefreshCw size={12} />
-              Regenerate
-            </button>
-          </div>
-        </div>
+      <div className="h-full flex flex-col items-center justify-center gap-3 text-center px-6 bg-gray-50">
+        <CalendarX2 size={40} className="text-gray-300" />
+        <p className="text-gray-500 text-sm">No deadlines or time-sensitive obligations were found in this document.</p>
+        <button
+          onClick={onRegenerate}
+          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors duration-150 focus:outline-none"
+        >
+          <RefreshCw size={12} />
+          Regenerate
+        </button>
       </div>
     );
   }
@@ -175,7 +183,7 @@ export default function DeadlinesView({ deadlines, loading, error, onGenerate, o
         <div className="pt-2">
           <button
             onClick={onRegenerate}
-            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded"
           >
             <RefreshCw size={12} />
             Regenerate deadlines

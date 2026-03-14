@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Search, RefreshCw } from 'lucide-react';
+import { Search, RefreshCw, Tag } from 'lucide-react';
 
 // Category → badge color mapping
 const CATEGORY_STYLES = {
@@ -58,7 +58,7 @@ export default function KeyTermsView({ terms, loading, error, onGenerate, onRege
           <p className="text-sm text-red-600">{error}</p>
           <button
             onClick={onGenerate}
-            className="ml-4 text-sm text-[#2E75B6] hover:underline shrink-0"
+            className="ml-4 text-sm text-[#2E75B6] hover:underline shrink-0 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded"
           >
             Retry
           </button>
@@ -67,7 +67,36 @@ export default function KeyTermsView({ terms, loading, error, onGenerate, onRege
     );
   }
 
-  if (!terms) return null;
+  if (!terms) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center gap-3 text-center px-6 bg-gray-50">
+        <Tag size={40} className="text-gray-300" />
+        <p className="text-gray-500 text-sm">Key terms not extracted yet</p>
+        <button
+          onClick={onGenerate}
+          className="bg-[#2E75B6] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#245d94] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
+        >
+          Extract Key Terms
+        </button>
+      </div>
+    );
+  }
+
+  if (terms.length === 0) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center gap-3 text-center px-6 bg-gray-50">
+        <Tag size={40} className="text-gray-300" />
+        <p className="text-gray-500 text-sm">No key terms were identified in this document.</p>
+        <button
+          onClick={onRegenerate}
+          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors duration-150 focus:outline-none"
+        >
+          <RefreshCw size={12} />
+          Regenerate
+        </button>
+      </div>
+    );
+  }
 
   const q = query.trim().toLowerCase();
   const filtered = q
@@ -130,7 +159,7 @@ export default function KeyTermsView({ terms, loading, error, onGenerate, onRege
         <div className="pt-2">
           <button
             onClick={onRegenerate}
-            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded"
           >
             <RefreshCw size={12} />
             Regenerate key terms

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Download, FileText, FileDown } from 'lucide-react';
+import { Download, FileText, FileDown, Loader2, UploadCloud } from 'lucide-react';
 import Header from '../components/Header.jsx';
 import Sidebar from '../components/Sidebar.jsx';
 import ChatWindow from '../components/ChatWindow.jsx';
@@ -19,6 +19,8 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('Chat');
   const [showUpload, setShowUpload] = useState(false);
   const [showExport, setShowExport] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const exportRef = useRef(null);
 
   // Close export dropdown on outside click
@@ -47,6 +49,7 @@ export default function Dashboard() {
     const doc = await upload(file);
     setSelectedDoc(doc);
     setActiveTab('Chat');
+    setSidebarOpen(false);
   }
 
   async function handleDelete(id) {
@@ -54,19 +57,37 @@ export default function Dashboard() {
     if (selectedDoc?.id === id) setSelectedDoc(null);
   }
 
+  function handleExport(format) {
+    setShowExport(false);
+    setExporting(true);
+    exportDocument(selectedDoc.id, format);
+    setTimeout(() => setExporting(false), 2000);
+  }
+
   return (
     <div className="flex flex-col h-screen bg-white">
-      <Header />
+      <Header onMenuToggle={() => setSidebarOpen((v) => !v)} />
+
+      {/* Mobile sidebar backdrop */}
+      {sidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/20 z-10"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           documents={documents}
           selectedId={selectedDoc?.id}
-          onSelect={setSelectedDoc}
-          onUpload={() => setShowUpload(true)}
+          onSelect={(doc) => { setSelectedDoc(doc); setSidebarOpen(false); }}
+          onUpload={() => { setShowUpload(true); setSidebarOpen(false); }}
           onDelete={handleDelete}
           loading={docsLoading}
           error={docsError}
+          isOpen={sidebarOpen}
         />
+
         <main className="flex-1 flex flex-col overflow-hidden">
           {selectedDoc ? (
             <>
@@ -76,7 +97,7 @@ export default function Dashboard() {
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded-t ${
                       activeTab === tab
                         ? 'border-[#2E75B6] text-[#2E75B6]'
                         : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -89,25 +110,26 @@ export default function Dashboard() {
                 {/* Export button + dropdown */}
                 <div ref={exportRef} className="ml-auto relative flex items-center py-2">
                   <button
-                    onClick={() => setShowExport((v) => !v)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+                    onClick={() => !exporting && setShowExport((v) => !v)}
+                    disabled={exporting}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 disabled:opacity-60"
                   >
-                    <Download size={14} />
+                    {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
                     Export
                   </button>
 
                   {showExport && (
                     <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
                       <button
-                        onClick={() => { exportDocument(selectedDoc.id, 'pdf'); setShowExport(false); }}
-                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        onClick={() => handleExport('pdf')}
+                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
                       >
                         <FileText size={14} className="text-gray-400" />
                         Export as PDF
                       </button>
                       <button
-                        onClick={() => { exportDocument(selectedDoc.id, 'text'); setShowExport(false); }}
-                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        onClick={() => handleExport('text')}
+                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
                       >
                         <FileDown size={14} className="text-gray-400" />
                         Export as Text
@@ -116,6 +138,7 @@ export default function Dashboard() {
                   )}
                 </div>
               </div>
+
               {/* Tab content */}
               <div className="flex-1 overflow-hidden">
                 {activeTab === 'Chat' && (
@@ -151,12 +174,24 @@ export default function Dashboard() {
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">
-              Select a document from the sidebar or upload a new one to get started.
+            /* No document selected — proper empty state */
+            <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center px-6">
+              <UploadCloud size={48} className="text-gray-300" />
+              <div>
+                <p className="text-gray-600 font-medium">No document selected</p>
+                <p className="text-gray-400 text-sm mt-1">Upload a PDF or select one from the sidebar to get started.</p>
+              </div>
+              <button
+                onClick={() => setShowUpload(true)}
+                className="mt-2 bg-[#2E75B6] text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-[#245d94] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
+              >
+                Upload PDF
+              </button>
             </div>
           )}
         </main>
       </div>
+
       {showUpload && (
         <UploadModal onUpload={handleUpload} onClose={() => setShowUpload(false)} />
       )}

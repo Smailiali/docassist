@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, BookOpen } from 'lucide-react';
 
 function SkeletonLoader() {
   return (
-    <div className="p-6 max-w-3xl animate-pulse">
+    <div className="h-full overflow-y-auto p-6 bg-gray-50 animate-pulse">
+    <div className="max-w-3xl">
       <div className="h-5 bg-gray-200 rounded w-1/4 mb-6" />
       <div className="space-y-3 mb-6">
         <div className="h-3 bg-gray-200 rounded w-full" />
@@ -23,6 +24,7 @@ function SkeletonLoader() {
         <div className="h-3 bg-gray-200 rounded w-1/2" />
         <div className="h-3 bg-gray-200 rounded w-3/5" />
       </div>
+    </div>
     </div>
   );
 }
@@ -44,7 +46,7 @@ export default function SummaryView({ summary, loading, error, onGenerate, onReg
           <p className="text-sm text-red-600">{error}</p>
           <button
             onClick={onGenerate}
-            className="ml-4 text-sm text-[#2E75B6] hover:underline shrink-0"
+            className="ml-4 text-sm text-[#2E75B6] hover:underline shrink-0 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded"
           >
             Retry
           </button>
@@ -53,7 +55,20 @@ export default function SummaryView({ summary, loading, error, onGenerate, onReg
     );
   }
 
-  if (!summary) return null;
+  if (!summary) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center gap-3 text-center px-6 bg-gray-50">
+        <BookOpen size={40} className="text-gray-300" />
+        <p className="text-gray-500 text-sm">Summary not generated yet</p>
+        <button
+          onClick={onGenerate}
+          className="bg-[#2E75B6] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#245d94] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
+        >
+          Generate Summary
+        </button>
+      </div>
+    );
+  }
 
   const { document_type, overview, parties = [], key_topics = [] } = summary;
 
@@ -112,7 +127,7 @@ export default function SummaryView({ summary, loading, error, onGenerate, onReg
         <div className="pt-4 border-t border-gray-100">
           <button
             onClick={onRegenerate}
-            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded"
           >
             <RefreshCw size={12} />
             Regenerate summary

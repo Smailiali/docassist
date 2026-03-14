@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send } from 'lucide-react';
+import { Send, Loader2 } from 'lucide-react';
 import MessageBubble from './MessageBubble.jsx';
 
 function ThinkingDots() {
@@ -100,15 +100,15 @@ export default function ChatWindow({ messages, streaming, thinking, onSend }) {
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder="Ask a question about this document..."
-          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-[#2E75B6] resize-none overflow-hidden leading-6"
+          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-[#2E75B6] focus:ring-2 focus:ring-[#2E75B6]/20 resize-none overflow-hidden leading-6"
         />
         <button
           onClick={submit}
           disabled={!input.trim() || streaming}
-          className="shrink-0 bg-[#2E75B6] text-white p-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="shrink-0 bg-[#2E75B6] text-white p-2 rounded-lg hover:bg-[#245d94] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
           title="Send"
         >
-          <Send size={18} />
+          {streaming ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
         </button>
       </div>
     </div>
