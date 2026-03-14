@@ -20,6 +20,8 @@ router.post('/:id/analyze', (req, res) => {
   );
 });
 
+const INSUFFICIENT_TEXT_MSG = 'This document has insufficient text content. It may be an image-based PDF that requires OCR processing.';
+
 // POST /api/documents/:id/summary
 router.post('/:id/summary', async (req, res) => {
   try {
@@ -27,6 +29,7 @@ router.post('/:id/summary', async (req, res) => {
     res.json(data);
   } catch (err) {
     if (err.message === 'Document not found') return res.status(404).json({ error: err.message });
+    if (err.message === 'Insufficient text content') return res.status(422).json({ error: INSUFFICIENT_TEXT_MSG });
     console.error('Summary error:', err);
     res.status(500).json({ error: 'Failed to generate summary' });
   }
@@ -39,6 +42,7 @@ router.post('/:id/terms', async (req, res) => {
     res.json(data);
   } catch (err) {
     if (err.message === 'Document not found') return res.status(404).json({ error: err.message });
+    if (err.message === 'Insufficient text content') return res.status(422).json({ error: INSUFFICIENT_TEXT_MSG });
     console.error('Terms error:', err);
     res.status(500).json({ error: 'Failed to extract key terms' });
   }
@@ -51,6 +55,7 @@ router.post('/:id/deadlines', async (req, res) => {
     res.json(data);
   } catch (err) {
     if (err.message === 'Document not found') return res.status(404).json({ error: err.message });
+    if (err.message === 'Insufficient text content') return res.status(422).json({ error: INSUFFICIENT_TEXT_MSG });
     console.error('Deadlines error:', err);
     res.status(500).json({ error: 'Failed to extract deadlines' });
   }

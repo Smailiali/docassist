@@ -58,11 +58,12 @@ export default function SummaryView({ summary, loading, error, onGenerate, onReg
   if (!summary) {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-3 text-center px-6 bg-gray-50">
-        <BookOpen size={40} className="text-gray-300" />
-        <p className="text-gray-500 text-sm">Summary not generated yet</p>
+        <BookOpen size={48} className="text-gray-300" />
+        <p className="text-gray-500 font-medium">Summary not generated yet</p>
+        <p className="text-gray-400 text-sm">AI will analyze and summarize this document for you</p>
         <button
           onClick={onGenerate}
-          className="bg-[#2E75B6] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#245d94] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
+          className="bg-[#2E75B6] text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:bg-[#245d94] hover:shadow-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 cursor-pointer"
         >
           Generate Summary
         </button>
@@ -74,7 +75,7 @@ export default function SummaryView({ summary, loading, error, onGenerate, onReg
 
   return (
     <div className="h-full overflow-y-auto p-6 bg-gray-50">
-      <div className="max-w-3xl bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+      <div className="max-w-3xl bg-white border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow duration-200">
 
         {/* Document type badge */}
         {document_type && (
@@ -86,7 +87,7 @@ export default function SummaryView({ summary, loading, error, onGenerate, onReg
         {/* Overview */}
         {overview && (
           <section className="mb-5">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Overview</h3>
+            <h3 className="text-sm font-semibold text-gray-800 mb-2 border-l-[5px] border-[#2E75B6] pl-3">Overview</h3>
             <p className="text-sm text-gray-600 leading-relaxed">{overview}</p>
           </section>
         )}
@@ -94,12 +95,12 @@ export default function SummaryView({ summary, loading, error, onGenerate, onReg
         {/* Parties */}
         {parties.length > 0 && (
           <section className="mb-5">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Parties Involved</h3>
+            <h3 className="text-sm font-semibold text-gray-800 mb-2 border-l-[5px] border-[#2E75B6] pl-3">Parties Involved</h3>
             <div className="flex flex-wrap gap-2">
               {parties.map((party, i) => (
                 <span
                   key={i}
-                  className="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full"
+                  className="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full shadow-sm"
                 >
                   {party}
                 </span>
@@ -111,11 +112,11 @@ export default function SummaryView({ summary, loading, error, onGenerate, onReg
         {/* Key Topics */}
         {key_topics.length > 0 && (
           <section className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Key Topics</h3>
+            <h3 className="text-sm font-semibold text-gray-800 mb-2 border-l-[5px] border-[#2E75B6] pl-3">Key Topics</h3>
             <ul className="space-y-1">
               {key_topics.map((topic, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#2E75B6] shrink-0" />
+                  <span className="mt-1.5 w-2 h-2 rounded-full bg-[#2E75B6] shrink-0" />
                   {topic}
                 </li>
               ))}
@@ -127,7 +128,7 @@ export default function SummaryView({ summary, loading, error, onGenerate, onReg
         <div className="pt-4 border-t border-gray-100">
           <button
             onClick={onRegenerate}
-            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded"
+            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded"
           >
             <RefreshCw size={12} />
             Regenerate summary

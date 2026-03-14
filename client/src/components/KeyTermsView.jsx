@@ -11,8 +11,22 @@ const CATEGORY_STYLES = {
   location:     'bg-teal-50 text-teal-700',
 };
 
+// Category → top accent border color
+const CATEGORY_TOP_BORDER = {
+  person:       'border-t-blue-400',
+  organization: 'border-t-orange-400',
+  date:         'border-t-amber-400',
+  money:        'border-t-green-400',
+  legal_term:   'border-t-purple-400',
+  location:     'border-t-teal-400',
+};
+
 function categoryStyle(category) {
   return CATEGORY_STYLES[category?.toLowerCase()] ?? 'bg-gray-100 text-gray-600';
+}
+
+function categoryTopBorder(category) {
+  return CATEGORY_TOP_BORDER[category?.toLowerCase()] ?? 'border-t-gray-300';
 }
 
 function SkeletonCard() {
@@ -70,11 +84,12 @@ export default function KeyTermsView({ terms, loading, error, onGenerate, onRege
   if (!terms) {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-3 text-center px-6 bg-gray-50">
-        <Tag size={40} className="text-gray-300" />
-        <p className="text-gray-500 text-sm">Key terms not extracted yet</p>
+        <Tag size={48} className="text-gray-300" />
+        <p className="text-gray-500 font-medium">Key terms not extracted yet</p>
+        <p className="text-gray-400 text-sm">AI will identify people, organizations, dates, and legal terms</p>
         <button
           onClick={onGenerate}
-          className="bg-[#2E75B6] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#245d94] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
+          className="bg-[#2E75B6] text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:bg-[#245d94] hover:shadow-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 cursor-pointer"
         >
           Extract Key Terms
         </button>
@@ -85,11 +100,12 @@ export default function KeyTermsView({ terms, loading, error, onGenerate, onRege
   if (terms.length === 0) {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-3 text-center px-6 bg-gray-50">
-        <Tag size={40} className="text-gray-300" />
-        <p className="text-gray-500 text-sm">No key terms were identified in this document.</p>
+        <Tag size={48} className="text-gray-300" />
+        <p className="text-gray-500 font-medium">No key terms found</p>
+        <p className="text-gray-400 text-sm">No key terms were identified in this document.</p>
         <button
           onClick={onRegenerate}
-          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors duration-150 focus:outline-none"
+          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-all duration-150 focus:outline-none"
         >
           <RefreshCw size={12} />
           Regenerate
@@ -139,10 +155,10 @@ export default function KeyTermsView({ terms, loading, error, onGenerate, onRege
             {filtered.map((item, i) => (
               <div
                 key={i}
-                className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+                className={`bg-white border border-gray-200 border-t-[3px] ${categoryTopBorder(item.category)} rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow duration-200`}
               >
                 {item.category && (
-                  <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded-full mb-2 ${categoryStyle(item.category)}`}>
+                  <span className={`inline-block text-xs font-semibold px-3 py-1 rounded-full mb-2 shadow-sm ${categoryStyle(item.category)}`}>
                     {item.category.replace('_', ' ')}
                   </span>
                 )}
@@ -159,7 +175,7 @@ export default function KeyTermsView({ terms, loading, error, onGenerate, onRege
         <div className="pt-2">
           <button
             onClick={onRegenerate}
-            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded"
+            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded"
           >
             <RefreshCw size={12} />
             Regenerate key terms

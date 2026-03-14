@@ -30,8 +30,8 @@ export default function UploadModal({ onUpload, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
         <h2 className="text-lg font-semibold mb-6">Upload a PDF</h2>
 
         <div
@@ -76,7 +76,7 @@ export default function UploadModal({ onUpload, onClose }) {
           <button
             onClick={onClose}
             disabled={uploading}
-            className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-40 transition-colors duration-150 focus:outline-none"
+            className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 disabled:opacity-40 transition-all duration-150 focus:outline-none cursor-pointer"
           >
             Cancel
           </button>

@@ -18,7 +18,7 @@ export default function Header({ onMenuToggle, user, logout, selectedDoc }) {
     <header className="h-14 bg-white shadow-sm flex items-center px-5 shrink-0 gap-4 z-10 relative">
       <button
         onClick={onMenuToggle}
-        className="lg:hidden p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
+        className="lg:hidden p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
         aria-label="Toggle sidebar"
       >
         <Menu size={20} />
@@ -45,7 +45,7 @@ export default function Header({ onMenuToggle, user, logout, selectedDoc }) {
         <div ref={ref} className="ml-auto relative flex items-center">
           <button
             onClick={() => setOpen((v) => !v)}
-            className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-gray-50 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
+            className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-gray-50 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
           >
             {user.avatar_url ? (
               <img
@@ -68,7 +68,7 @@ export default function Header({ onMenuToggle, user, logout, selectedDoc }) {
             <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
               <button
                 onClick={() => { setOpen(false); logout(); }}
-                className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
+                className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-all duration-150"
               >
                 <LogOut size={14} className="text-gray-400" />
                 Sign out

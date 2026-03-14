@@ -126,16 +126,16 @@ export default function Dashboard({ user, logout }) {
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-3.5 text-sm font-medium border-b-2 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded-t ${
+                    className={`px-4 py-3.5 text-sm border-b-[3px] transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded-t ${
                       activeTab === tab
-                        ? 'border-[#2E75B6] text-[#2E75B6]'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? 'border-[#2E75B6] text-[#2E75B6] font-semibold'
+                        : 'border-transparent text-gray-400 font-medium hover:text-gray-600 hover:border-gray-300'
                     }`}
                   >
                     <span className="flex items-center gap-1.5">
                       {tab}
                       {TAB_INSIGHT[tab] && docInsights[TAB_INSIGHT[tab]] && (
-                        <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-green-400 shrink-0" />
                       )}
                     </span>
                   </button>
@@ -146,7 +146,7 @@ export default function Dashboard({ user, logout }) {
                   <button
                     onClick={() => !exporting && setShowExport((v) => !v)}
                     disabled={exporting}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 disabled:opacity-60"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 disabled:opacity-60"
                   >
                     {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
                     Export
@@ -156,14 +156,14 @@ export default function Dashboard({ user, logout }) {
                     <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
                       <button
                         onClick={() => handleExport('pdf')}
-                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
+                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-all duration-150"
                       >
                         <FileText size={14} className="text-gray-400" />
                         Export as PDF
                       </button>
                       <button
                         onClick={() => handleExport('text')}
-                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
+                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-all duration-150"
                       >
                         <FileDown size={14} className="text-gray-400" />
                         Export as Text
@@ -212,12 +212,12 @@ export default function Dashboard({ user, logout }) {
             <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center px-6">
               <UploadCloud size={48} className="text-gray-300" />
               <div>
-                <p className="text-gray-600 font-medium">No document selected</p>
+                <p className="text-gray-500 font-medium">No document selected</p>
                 <p className="text-gray-400 text-sm mt-1">Upload a PDF or select one from the sidebar to get started.</p>
               </div>
               <button
                 onClick={() => setShowUpload(true)}
-                className="mt-2 bg-[#2E75B6] text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-[#245d94] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
+                className="mt-2 bg-[#2E75B6] text-white px-5 py-2 rounded-lg text-sm font-medium shadow-md hover:bg-[#245d94] hover:shadow-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 cursor-pointer"
               >
                 Upload PDF
               </button>

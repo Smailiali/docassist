@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, Check, X, FileText, Plus } from 'lucide-react';
+import { Trash2, Check, X, FileText, Plus, FolderOpen } from 'lucide-react';
 
 function relativeTime(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -40,7 +40,7 @@ export default function Sidebar({ documents, selectedId, onSelect, onUpload, onD
   return (
     <aside
       className={`
-        w-64 bg-slate-50 border-r border-gray-200 flex flex-col shrink-0
+        w-64 bg-slate-100 border-r border-gray-200 flex flex-col shrink-0
         fixed top-14 bottom-0 left-0 z-20
         lg:static lg:top-auto lg:bottom-auto lg:z-auto
         transition-transform duration-200 ease-in-out
@@ -54,7 +54,7 @@ export default function Sidebar({ documents, selectedId, onSelect, onUpload, onD
       </div>
 
       {/* Document list */}
-      <nav className="flex-1 overflow-y-auto py-2">
+      <nav className="flex-1 overflow-y-auto py-2 thin-scroll">
         {loading ? (
           <>
             <SkeletonItem />
@@ -66,9 +66,11 @@ export default function Sidebar({ documents, selectedId, onSelect, onUpload, onD
             Failed to load documents. Check your connection.
           </p>
         ) : documents.length === 0 ? (
-          <p className="text-xs text-gray-400 text-center mt-10 px-4 leading-relaxed">
-            No documents yet.<br />Upload a PDF to get started.
-          </p>
+          <div className="flex flex-col items-center justify-center mt-10 px-4 text-center gap-2">
+            <FolderOpen size={36} className="text-gray-300" />
+            <p className="text-xs font-medium text-gray-500">No documents yet</p>
+            <p className="text-xs text-gray-400 leading-relaxed">Upload a PDF to get started</p>
+          </div>
         ) : (
           <div className="divide-y divide-gray-100">
             {documents.map((doc) => (
@@ -102,14 +104,14 @@ export default function Sidebar({ documents, selectedId, onSelect, onUpload, onD
                     <>
                       <button
                         onClick={(e) => handleDeleteConfirm(e, doc.id)}
-                        className="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors duration-150 focus:outline-none"
+                        className="p-1.5 text-red-500 hover:bg-red-50 rounded transition-all duration-150 focus:outline-none"
                         title="Confirm delete"
                       >
                         <Check size={13} />
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
-                        className="p-1.5 text-gray-400 hover:bg-gray-100 rounded transition-colors duration-150 focus:outline-none"
+                        className="p-1.5 text-gray-400 hover:bg-gray-100 rounded transition-all duration-150 focus:outline-none"
                         title="Cancel"
                       >
                         <X size={13} />
@@ -119,7 +121,7 @@ export default function Sidebar({ documents, selectedId, onSelect, onUpload, onD
                     <button
                       onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(doc.id); }}
                       disabled={deletingId === doc.id}
-                      className="p-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150 disabled:opacity-50 focus:outline-none focus:opacity-100"
+                      className="p-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all duration-150 disabled:opacity-50 focus:outline-none focus:opacity-100 cursor-pointer"
                       title="Delete document"
                     >
                       {deletingId === doc.id
@@ -139,7 +141,7 @@ export default function Sidebar({ documents, selectedId, onSelect, onUpload, onD
       <div className="p-4 border-t border-gray-200/80 shrink-0">
         <button
           onClick={onUpload}
-          className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 hover:border-[#2E75B6] text-gray-500 hover:text-[#2E75B6] rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
+          className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 hover:border-[#2E75B6] text-gray-500 hover:text-[#2E75B6] rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 cursor-pointer"
         >
           <Plus size={16} />
           Upload PDF

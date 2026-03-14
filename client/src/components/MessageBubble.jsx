@@ -106,8 +106,8 @@ const MessageBubble = memo(function MessageBubble({ message }) {
         <div
           className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
             isUser
-              ? 'bg-[#2E75B6] text-white rounded-br-sm'
-              : 'bg-white border border-gray-200 text-gray-800 rounded-bl-sm'
+              ? 'bg-gradient-to-br from-[#2E75B6] to-[#1d5a8a] text-white rounded-br-sm shadow-md'
+              : 'bg-white border border-gray-200 text-gray-800 rounded-bl-sm shadow-md'
           }`}
         >
           {isUser ? message.content : renderMarkdown(message.content)}

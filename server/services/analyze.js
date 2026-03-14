@@ -24,6 +24,7 @@ export async function generateSummaryForDoc(docId, userId, force = false) {
   );
   if (rows.length === 0) throw new Error('Document not found');
   const { text_content, summary } = rows[0];
+  if ((text_content ?? '').trim().length < 50) throw new Error('Insufficient text content');
   if (summary && !force) return summary;
   const parsed = await parseWithRetry(summaryPrompt, text_content, 'Generate the summary.');
   await pool.query(
@@ -40,6 +41,7 @@ export async function generateTermsForDoc(docId, userId, force = false) {
   );
   if (rows.length === 0) throw new Error('Document not found');
   const { text_content, key_terms } = rows[0];
+  if ((text_content ?? '').trim().length < 50) throw new Error('Insufficient text content');
   if (key_terms && !force) return key_terms;
   const parsed = await parseWithRetry(keyTermsPrompt, text_content, 'Extract the key terms.');
   await pool.query(
@@ -56,6 +58,7 @@ export async function generateDeadlinesForDoc(docId, userId, force = false) {
   );
   if (rows.length === 0) throw new Error('Document not found');
   const { text_content, deadlines } = rows[0];
+  if ((text_content ?? '').trim().length < 50) throw new Error('Insufficient text content');
   if (deadlines && !force) return deadlines;
   const parsed = await parseWithRetry(deadlinesPrompt, text_content, 'Detect the deadlines.');
   await pool.query(
@@ -83,6 +86,10 @@ export async function analyzeDocument(docId, userId) {
       try {
         await fn();
       } catch (err) {
+        if (err.message === 'Insufficient text content') {
+          console.log(`Skipping analysis for doc ${docId}: insufficient text content`);
+          break; // all three steps will fail for the same reason — no point continuing
+        }
         console.error(`Background analysis failed for ${name} (doc ${docId}):`, err.message);
       }
     }

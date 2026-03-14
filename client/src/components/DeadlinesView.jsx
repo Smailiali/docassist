@@ -57,14 +57,15 @@ function DeadlineRow({ item }) {
     <div className="flex gap-4">
       {/* Left: date chip + connector */}
       <div className="flex flex-col items-center shrink-0 w-28 pt-1">
-        <span className="text-xs font-medium bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-center leading-tight">
+        <span className="text-xs font-bold bg-blue-50 text-[#2E75B6] px-2 py-1 rounded-full text-center leading-tight shadow-md">
           {dateDisplay}
         </span>
-        <div className="w-px flex-1 bg-gray-200 mt-2" />
+        <div className="w-3 h-3 rounded-full bg-[#2E75B6] ring-4 ring-blue-100 mt-2 shrink-0" />
+        <div className="w-px flex-1 bg-gray-200 mt-1" />
       </div>
 
       {/* Right: card */}
-      <div className="flex-1 bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow mb-3">
+      <div className="flex-1 bg-white border border-gray-200 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow mb-3">
         <div className="flex items-center gap-2 mb-1">
           <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${urgencyDot(urgency)}`} />
           <span className={`text-xs font-medium capitalize ${urgencyLabel(urgency)}`}>{urgency}</span>
@@ -115,11 +116,12 @@ export default function DeadlinesView({ deadlines, loading, error, onGenerate, o
   if (!deadlines) {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-3 text-center px-6 bg-gray-50">
-        <CalendarClock size={40} className="text-gray-300" />
-        <p className="text-gray-500 text-sm">Deadlines not extracted yet</p>
+        <CalendarClock size={48} className="text-gray-300" />
+        <p className="text-gray-500 font-medium">Deadlines not extracted yet</p>
+        <p className="text-gray-400 text-sm">AI will surface dates, obligations, and time-sensitive clauses</p>
         <button
           onClick={onGenerate}
-          className="bg-[#2E75B6] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#245d94] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
+          className="bg-[#2E75B6] text-white px-4 py-2 rounded-lg text-sm font-medium shadow-md hover:bg-[#245d94] hover:shadow-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 cursor-pointer"
         >
           Extract Deadlines
         </button>
@@ -130,11 +132,12 @@ export default function DeadlinesView({ deadlines, loading, error, onGenerate, o
   if (deadlines.length === 0) {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-3 text-center px-6 bg-gray-50">
-        <CalendarX2 size={40} className="text-gray-300" />
-        <p className="text-gray-500 text-sm">No deadlines or time-sensitive obligations were found in this document.</p>
+        <CalendarX2 size={48} className="text-gray-300" />
+        <p className="text-gray-500 font-medium">No deadlines found</p>
+        <p className="text-gray-400 text-sm">No time-sensitive obligations were identified in this document.</p>
         <button
           onClick={onRegenerate}
-          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors duration-150 focus:outline-none"
+          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-all duration-150 focus:outline-none"
         >
           <RefreshCw size={12} />
           Regenerate
@@ -183,7 +186,7 @@ export default function DeadlinesView({ deadlines, loading, error, onGenerate, o
         <div className="pt-2">
           <button
             onClick={onRegenerate}
-            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded"
+            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded"
           >
             <RefreshCw size={12} />
             Regenerate deadlines
