@@ -17,12 +17,12 @@ router.post('/:id/chat', async (req, res) => {
     return res.status(400).json({ error: 'Message is required' });
   }
 
-  // Fetch document
+  // Fetch document — scoped to current user
   let docResult;
   try {
     docResult = await pool.query(
-      'SELECT text_content FROM documents WHERE id = $1',
-      [id]
+      'SELECT text_content FROM documents WHERE id = $1 AND user_id = $2',
+      [id, req.user.id]
     );
   } catch (err) {
     console.error('DB error fetching document:', err);
@@ -102,6 +102,15 @@ router.post('/:id/chat', async (req, res) => {
 // GET /api/documents/:id/messages
 router.get('/:id/messages', async (req, res) => {
   try {
+    // Verify document belongs to user before returning messages
+    const docCheck = await pool.query(
+      'SELECT id FROM documents WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.user.id]
+    );
+    if (docCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+
     const result = await pool.query(
       'SELECT id, role, content, created_at FROM messages WHERE document_id = $1 ORDER BY created_at ASC',
       [req.params.id]

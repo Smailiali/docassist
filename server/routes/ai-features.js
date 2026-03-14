@@ -19,8 +19,8 @@ router.post('/:id/summary', async (req, res) => {
 
   try {
     const docResult = await pool.query(
-      'SELECT text_content, summary FROM documents WHERE id = $1',
-      [id]
+      'SELECT text_content, summary FROM documents WHERE id = $1 AND user_id = $2',
+      [id, req.user.id]
     );
     if (docResult.rows.length === 0) {
       return res.status(404).json({ error: 'Document not found' });
@@ -46,8 +46,8 @@ router.post('/:id/summary', async (req, res) => {
     }
 
     await pool.query(
-      'UPDATE documents SET summary = $1 WHERE id = $2',
-      [JSON.stringify(parsed), id]
+      'UPDATE documents SET summary = $1 WHERE id = $2 AND user_id = $3',
+      [JSON.stringify(parsed), id, req.user.id]
     );
 
     res.json(parsed);
@@ -65,8 +65,8 @@ router.post('/:id/terms', async (req, res) => {
 
   try {
     const docResult = await pool.query(
-      'SELECT text_content, key_terms FROM documents WHERE id = $1',
-      [id]
+      'SELECT text_content, key_terms FROM documents WHERE id = $1 AND user_id = $2',
+      [id, req.user.id]
     );
     if (docResult.rows.length === 0) {
       return res.status(404).json({ error: 'Document not found' });
@@ -92,8 +92,8 @@ router.post('/:id/terms', async (req, res) => {
     }
 
     await pool.query(
-      'UPDATE documents SET key_terms = $1 WHERE id = $2',
-      [JSON.stringify(parsed), id]
+      'UPDATE documents SET key_terms = $1 WHERE id = $2 AND user_id = $3',
+      [JSON.stringify(parsed), id, req.user.id]
     );
 
     res.json(parsed);
@@ -111,8 +111,8 @@ router.post('/:id/deadlines', async (req, res) => {
 
   try {
     const docResult = await pool.query(
-      'SELECT text_content, deadlines FROM documents WHERE id = $1',
-      [id]
+      'SELECT text_content, deadlines FROM documents WHERE id = $1 AND user_id = $2',
+      [id, req.user.id]
     );
     if (docResult.rows.length === 0) {
       return res.status(404).json({ error: 'Document not found' });
@@ -138,8 +138,8 @@ router.post('/:id/deadlines', async (req, res) => {
     }
 
     await pool.query(
-      'UPDATE documents SET deadlines = $1 WHERE id = $2',
-      [JSON.stringify(parsed), id]
+      'UPDATE documents SET deadlines = $1 WHERE id = $2 AND user_id = $3',
+      [JSON.stringify(parsed), id, req.user.id]
     );
 
     res.json(parsed);
@@ -156,8 +156,14 @@ router.get('/:id/export', async (req, res) => {
 
   try {
     const [docResult, msgResult] = await Promise.all([
-      pool.query('SELECT title, summary, key_terms, deadlines FROM documents WHERE id = $1', [id]),
-      pool.query('SELECT role, content FROM messages WHERE document_id = $1 ORDER BY created_at ASC', [id]),
+      pool.query(
+        'SELECT title, summary, key_terms, deadlines FROM documents WHERE id = $1 AND user_id = $2',
+        [id, req.user.id]
+      ),
+      pool.query(
+        'SELECT role, content FROM messages WHERE document_id = $1 ORDER BY created_at ASC',
+        [id]
+      ),
     ]);
 
     if (docResult.rows.length === 0) {
@@ -274,7 +280,7 @@ router.get('/:id/export', async (req, res) => {
         doc.font('Helvetica-Bold').text('Key Topics');
         doc.moveDown(0.2);
         summary.key_topics.forEach((t) => {
-          doc.font('Helvetica').text(`  \u2022  ${t}`, { lineGap: 2 });
+          doc.font('Helvetica').text(`  • ${t}`, { lineGap: 2 });
         });
       }
     }

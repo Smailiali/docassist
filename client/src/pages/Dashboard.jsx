@@ -14,7 +14,7 @@ import { exportDocument } from '../services/api.js';
 
 const TABS = ['Chat', 'Summary', 'Key Terms', 'Deadlines'];
 
-export default function Dashboard() {
+export default function Dashboard({ user, logout }) {
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [activeTab, setActiveTab] = useState('Chat');
   const [showUpload, setShowUpload] = useState(false);
@@ -66,7 +66,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col h-screen bg-white">
-      <Header onMenuToggle={() => setSidebarOpen((v) => !v)} />
+      <Header onMenuToggle={() => setSidebarOpen((v) => !v)} user={user} logout={logout} />
 
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (

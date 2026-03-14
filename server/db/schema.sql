@@ -1,9 +1,23 @@
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   email VARCHAR(255) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
+  password_hash VARCHAR(255),
+  google_id VARCHAR(255) UNIQUE,
+  display_name VARCHAR(255),
+  avatar_url TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS users_google_id_idx ON users (google_id);
+
+CREATE TABLE IF NOT EXISTS "session" (
+  "sid" varchar NOT NULL,
+  "sess" json NOT NULL,
+  "expire" timestamp(6) NOT NULL,
+  CONSTRAINT "session_pkey" PRIMARY KEY ("sid")
+);
+
+CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
 
 CREATE TABLE IF NOT EXISTS documents (
   id SERIAL PRIMARY KEY,
