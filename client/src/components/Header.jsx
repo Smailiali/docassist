@@ -15,7 +15,7 @@ export default function Header({ onMenuToggle, user, logout, selectedDoc }) {
   }, [open]);
 
   return (
-    <header className="h-14 bg-white border-b border-gray-200 shadow-sm flex items-center px-5 shrink-0 gap-4">
+    <header className="h-14 bg-white shadow-sm flex items-center px-5 shrink-0 gap-4 z-10 relative">
       <button
         onClick={onMenuToggle}
         className="lg:hidden p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"

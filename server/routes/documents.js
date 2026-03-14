@@ -7,6 +7,18 @@ import { analyzeDocument } from '../services/analyze.js';
 
 const router = Router();
 
+function cleanTitle(filename) {
+  // Remove UUID patterns (e.g. -d89a6341-71bb-4066-99cf-e7a8feb7af7b)
+  let title = filename.replace(/[-_][0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}/gi, '');
+  // Replace underscores and hyphens with spaces
+  title = title.replace(/[_-]+/g, ' ');
+  // Collapse whitespace and trim
+  title = title.trim().replace(/\s+/g, ' ');
+  // Title case
+  title = title.replace(/\S+/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+  return title || filename;
+}
+
 // POST /api/documents/upload
 router.post('/upload', (req, res, next) => {
   upload.single('file')(req, res, (err) => {
@@ -22,7 +34,8 @@ router.post('/upload', (req, res, next) => {
 
   try {
     const { text, pageCount } = await extractTextFromPDF(req.file.path);
-    const title = path.basename(req.file.originalname, path.extname(req.file.originalname));
+    const rawName = path.basename(req.file.originalname, path.extname(req.file.originalname));
+    const title = cleanTitle(rawName);
 
     const result = await pool.query(
       `INSERT INTO documents (title, file_path, text_content, page_count, user_id)

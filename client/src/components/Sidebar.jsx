@@ -40,7 +40,7 @@ export default function Sidebar({ documents, selectedId, onSelect, onUpload, onD
   return (
     <aside
       className={`
-        w-64 bg-gradient-to-b from-slate-50 to-slate-100 border-r border-gray-200 flex flex-col shrink-0
+        w-64 bg-slate-50 border-r border-gray-200 flex flex-col shrink-0
         fixed top-14 bottom-0 left-0 z-20
         lg:static lg:top-auto lg:bottom-auto lg:z-auto
         transition-transform duration-200 ease-in-out
@@ -74,10 +74,10 @@ export default function Sidebar({ documents, selectedId, onSelect, onUpload, onD
             {documents.map((doc) => (
               <div
                 key={doc.id}
-                className={`group flex items-start transition-all duration-150 border-l-2 ${
+                className={`group flex items-start transition-all duration-150 border-l-[3px] ${
                   doc.id === selectedId
                     ? 'bg-blue-50/70 border-[#2E75B6]'
-                    : 'border-transparent hover:bg-white hover:border-[#2E75B6]/30'
+                    : 'border-transparent hover:bg-gray-100 hover:border-[#2E75B6]/50'
                 }`}
               >
                 <button
