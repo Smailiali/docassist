@@ -55,8 +55,9 @@ export async function extractTerms(documentId, force = false) {
   return res.json();
 }
 
-export async function extractDeadlines(documentId) {
-  const res = await fetch(`${BASE}/documents/${documentId}/deadlines`, { method: 'POST' });
+export async function extractDeadlines(documentId, force = false) {
+  const url = `${BASE}/documents/${documentId}/deadlines${force ? '?force=true' : ''}`;
+  const res = await fetch(url, { method: 'POST' });
   if (!res.ok) throw new Error('Failed to extract deadlines');
   return res.json();
 }

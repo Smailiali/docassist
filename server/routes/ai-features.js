@@ -104,9 +104,49 @@ router.post('/:id/terms', async (req, res) => {
 });
 
 // POST /api/documents/:id/deadlines
+// Pass ?force=true to bypass cache and regenerate
 router.post('/:id/deadlines', async (req, res) => {
-  // TODO: extract and store deadlines
-  res.status(501).json({ error: 'Not implemented yet' });
+  const { id } = req.params;
+  const force = req.query.force === 'true';
+
+  try {
+    const docResult = await pool.query(
+      'SELECT text_content, deadlines FROM documents WHERE id = $1',
+      [id]
+    );
+    if (docResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+
+    const { text_content, deadlines } = docResult.rows[0];
+
+    if (deadlines && !force) {
+      return res.json(deadlines);
+    }
+
+    let parsed;
+    const raw = await complete(deadlinesPrompt(text_content), 'Detect the deadlines.');
+    try {
+      parsed = JSON.parse(extractJSON(raw));
+    } catch {
+      const raw2 = await complete(deadlinesPrompt(text_content), 'Detect the deadlines.');
+      try {
+        parsed = JSON.parse(extractJSON(raw2));
+      } catch {
+        return res.status(500).json({ error: 'Failed to extract deadlines' });
+      }
+    }
+
+    await pool.query(
+      'UPDATE documents SET deadlines = $1 WHERE id = $2',
+      [JSON.stringify(parsed), id]
+    );
+
+    res.json(parsed);
+  } catch (err) {
+    console.error('Deadlines error:', err);
+    res.status(500).json({ error: 'Failed to extract deadlines' });
+  }
 });
 
 // GET /api/documents/:id/export

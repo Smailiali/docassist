@@ -84,11 +84,25 @@ export function useAIFeatures(documentId) {
     }
   }
 
+  async function regenerateDeadlines() {
+    setDeadlines(null);
+    setLoading((prev) => ({ ...prev, deadlines: true }));
+    setError((prev) => ({ ...prev, deadlines: null }));
+    try {
+      const data = await extractDeadlines(documentId, true);
+      setDeadlines(data);
+    } catch (err) {
+      setError((prev) => ({ ...prev, deadlines: err.message }));
+    } finally {
+      setLoading((prev) => ({ ...prev, deadlines: false }));
+    }
+  }
+
   return {
     summary, terms, deadlines,
     loading, error,
     fetchSummary, regenerateSummary,
     fetchTerms, regenerateTerms,
-    fetchDeadlines,
+    fetchDeadlines, regenerateDeadlines,
   };
 }

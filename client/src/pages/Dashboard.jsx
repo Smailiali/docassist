@@ -24,7 +24,7 @@ export default function Dashboard() {
     loading: aiLoading, error: aiError,
     fetchSummary, regenerateSummary,
     fetchTerms, regenerateTerms,
-    fetchDeadlines,
+    fetchDeadlines, regenerateDeadlines,
   } = useAIFeatures(selectedDoc?.id);
 
   async function handleUpload(file) {
@@ -94,7 +94,13 @@ export default function Dashboard() {
                   />
                 )}
                 {activeTab === 'Deadlines' && (
-                  <DeadlinesView deadlines={deadlines} loading={aiLoading.deadlines} onExtract={fetchDeadlines} />
+                  <DeadlinesView
+                    deadlines={deadlines}
+                    loading={aiLoading.deadlines}
+                    error={aiError.deadlines}
+                    onGenerate={fetchDeadlines}
+                    onRegenerate={regenerateDeadlines}
+                  />
                 )}
               </div>
             </>
