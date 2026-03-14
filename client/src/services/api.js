@@ -62,6 +62,6 @@ export async function extractDeadlines(documentId, force = false) {
   return res.json();
 }
 
-export function exportDocument(documentId) {
-  window.open(`${BASE}/documents/${documentId}/export`, '_blank');
+export function exportDocument(documentId, format = 'pdf') {
+  window.open(`${BASE}/documents/${documentId}/export?format=${format}`, '_blank');
 }

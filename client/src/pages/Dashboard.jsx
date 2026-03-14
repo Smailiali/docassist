@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { Download, FileText, FileDown } from 'lucide-react';
 import Header from '../components/Header.jsx';
 import Sidebar from '../components/Sidebar.jsx';
 import ChatWindow from '../components/ChatWindow.jsx';
@@ -9,6 +10,7 @@ import UploadModal from '../components/UploadModal.jsx';
 import { useDocuments } from '../hooks/useDocuments.js';
 import { useChat } from '../hooks/useChat.js';
 import { useAIFeatures } from '../hooks/useAIFeatures.js';
+import { exportDocument } from '../services/api.js';
 
 const TABS = ['Chat', 'Summary', 'Key Terms', 'Deadlines'];
 
@@ -16,6 +18,20 @@ export default function Dashboard() {
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [activeTab, setActiveTab] = useState('Chat');
   const [showUpload, setShowUpload] = useState(false);
+  const [showExport, setShowExport] = useState(false);
+  const exportRef = useRef(null);
+
+  // Close export dropdown on outside click
+  useEffect(() => {
+    if (!showExport) return;
+    function handleClick(e) {
+      if (exportRef.current && !exportRef.current.contains(e.target)) {
+        setShowExport(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showExport]);
 
   const { documents, loading: docsLoading, error: docsError, upload, remove } = useDocuments();
   const { messages, streaming, thinking, sendMessage } = useChat(selectedDoc?.id);
@@ -55,7 +71,7 @@ export default function Dashboard() {
           {selectedDoc ? (
             <>
               {/* Tab bar */}
-              <div className="border-b border-gray-200 bg-white px-6 flex gap-1 shrink-0">
+              <div className="border-b border-gray-200 bg-white px-6 flex items-center gap-1 shrink-0">
                 {TABS.map((tab) => (
                   <button
                     key={tab}
@@ -69,6 +85,36 @@ export default function Dashboard() {
                     {tab}
                   </button>
                 ))}
+
+                {/* Export button + dropdown */}
+                <div ref={exportRef} className="ml-auto relative flex items-center py-2">
+                  <button
+                    onClick={() => setShowExport((v) => !v)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+                  >
+                    <Download size={14} />
+                    Export
+                  </button>
+
+                  {showExport && (
+                    <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
+                      <button
+                        onClick={() => { exportDocument(selectedDoc.id, 'pdf'); setShowExport(false); }}
+                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <FileText size={14} className="text-gray-400" />
+                        Export as PDF
+                      </button>
+                      <button
+                        onClick={() => { exportDocument(selectedDoc.id, 'text'); setShowExport(false); }}
+                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <FileDown size={14} className="text-gray-400" />
+                        Export as Text
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
               {/* Tab content */}
               <div className="flex-1 overflow-hidden">
