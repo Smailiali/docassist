@@ -1,9 +1,21 @@
 import { useState } from 'react';
-import { Trash2, Check, X } from 'lucide-react';
+import { Trash2, Check, X, FileText, Plus } from 'lucide-react';
+
+function relativeTime(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(dateStr).toLocaleDateString();
+}
 
 function SkeletonItem() {
   return (
-    <div className="px-3 py-2 mb-1 rounded-lg animate-pulse">
+    <div className="px-4 py-3 animate-pulse border-l-2 border-transparent">
       <div className="h-3.5 bg-gray-200 rounded w-3/4 mb-2" />
       <div className="h-2.5 bg-gray-200 rounded w-1/2" />
     </div>
@@ -28,23 +40,21 @@ export default function Sidebar({ documents, selectedId, onSelect, onUpload, onD
   return (
     <aside
       className={`
-        w-64 bg-gray-50 border-r border-gray-200 flex flex-col shrink-0
+        w-64 bg-gradient-to-b from-slate-50 to-slate-100 border-r border-gray-200 flex flex-col shrink-0
         fixed top-14 bottom-0 left-0 z-20
         lg:static lg:top-auto lg:bottom-auto lg:z-auto
         transition-transform duration-200 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}
     >
-      <div className="p-4 border-b border-gray-200">
-        <button
-          onClick={onUpload}
-          className="w-full bg-[#2E75B6] text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-[#245d94] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
-        >
-          + Upload PDF
-        </button>
+      {/* Sidebar brand */}
+      <div className="px-5 py-4 border-b border-gray-200/80 flex items-center gap-2.5 shrink-0">
+        <FileText size={18} className="text-[#2E75B6] shrink-0" />
+        <span className="font-bold text-lg text-[#2E75B6] tracking-tight">DocAssist</span>
       </div>
 
-      <nav className="flex-1 overflow-y-auto p-2">
+      {/* Document list */}
+      <nav className="flex-1 overflow-y-auto py-2">
         {loading ? (
           <>
             <SkeletonItem />
@@ -56,69 +66,85 @@ export default function Sidebar({ documents, selectedId, onSelect, onUpload, onD
             Failed to load documents. Check your connection.
           </p>
         ) : documents.length === 0 ? (
-          <p className="text-xs text-gray-400 text-center mt-8 px-4">
-            No documents yet.
+          <p className="text-xs text-gray-400 text-center mt-10 px-4 leading-relaxed">
+            No documents yet.<br />Upload a PDF to get started.
           </p>
         ) : (
-          documents.map((doc) => (
-            <div
-              key={doc.id}
-              className={`group flex items-start rounded-lg mb-1 transition-colors duration-150 border-l-2 ${
-                doc.id === selectedId
-                  ? 'bg-blue-50 border-[#2E75B6]'
-                  : 'border-transparent hover:bg-gray-200'
-              }`}
-            >
-              <button
-                onClick={() => onSelect(doc)}
-                className="flex-1 text-left px-3 py-2 text-sm min-w-0 focus:outline-none"
+          <div className="divide-y divide-gray-100">
+            {documents.map((doc) => (
+              <div
+                key={doc.id}
+                className={`group flex items-start transition-all duration-150 border-l-2 ${
+                  doc.id === selectedId
+                    ? 'bg-blue-50/70 border-[#2E75B6]'
+                    : 'border-transparent hover:bg-white hover:border-[#2E75B6]/30'
+                }`}
               >
-                <div className={`truncate font-medium ${doc.id === selectedId ? 'text-[#2E75B6]' : 'text-gray-700'}`}>
-                  {doc.title}
-                </div>
-                <div className="text-xs text-gray-400 mt-0.5">
-                  {doc.page_count ? `${doc.page_count} pages · ` : ''}
-                  {new Date(doc.created_at).toLocaleDateString()}
-                </div>
-              </button>
+                <button
+                  onClick={() => onSelect(doc)}
+                  className="flex-1 text-left px-4 py-3 min-w-0 focus:outline-none"
+                >
+                  <div className={`truncate text-sm font-medium leading-snug ${
+                    doc.id === selectedId ? 'text-[#2E75B6]' : 'text-gray-700'
+                  }`}>
+                    {doc.title}
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-1 text-xs text-gray-400">
+                    {doc.page_count && <span>{doc.page_count}p</span>}
+                    {doc.page_count && <span aria-hidden>·</span>}
+                    <span>{relativeTime(doc.created_at)}</span>
+                  </div>
+                </button>
 
-              {/* Delete: inline confirm or trash icon */}
-              <div className="shrink-0 flex items-center mt-1 mr-1 gap-0.5">
-                {confirmDeleteId === doc.id ? (
-                  <>
+                {/* Delete controls */}
+                <div className="shrink-0 flex items-center mt-2 mr-2 gap-0.5">
+                  {confirmDeleteId === doc.id ? (
+                    <>
+                      <button
+                        onClick={(e) => handleDeleteConfirm(e, doc.id)}
+                        className="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors duration-150 focus:outline-none"
+                        title="Confirm delete"
+                      >
+                        <Check size={13} />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
+                        className="p-1.5 text-gray-400 hover:bg-gray-100 rounded transition-colors duration-150 focus:outline-none"
+                        title="Cancel"
+                      >
+                        <X size={13} />
+                      </button>
+                    </>
+                  ) : (
                     <button
-                      onClick={(e) => handleDeleteConfirm(e, doc.id)}
-                      className="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors duration-150 focus:outline-none"
-                      title="Confirm delete"
+                      onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(doc.id); }}
+                      disabled={deletingId === doc.id}
+                      className="p-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150 disabled:opacity-50 focus:outline-none focus:opacity-100"
+                      title="Delete document"
                     >
-                      <Check size={13} />
+                      {deletingId === doc.id
+                        ? <span className="text-xs text-gray-400 font-mono">…</span>
+                        : <Trash2 size={14} />
+                      }
                     </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
-                      className="p-1.5 text-gray-400 hover:bg-gray-100 rounded transition-colors duration-150 focus:outline-none"
-                      title="Cancel"
-                    >
-                      <X size={13} />
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(doc.id); }}
-                    disabled={deletingId === doc.id}
-                    className="p-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150 disabled:opacity-50 focus:outline-none focus:opacity-100"
-                    title="Delete document"
-                  >
-                    {deletingId === doc.id
-                      ? <span className="text-xs text-gray-400 font-mono">…</span>
-                      : <Trash2 size={14} />
-                    }
-                  </button>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </nav>
+
+      {/* Upload button — dashed, anchored to bottom */}
+      <div className="p-4 border-t border-gray-200/80 shrink-0">
+        <button
+          onClick={onUpload}
+          className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 hover:border-[#2E75B6] text-gray-500 hover:text-[#2E75B6] rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
+        >
+          <Plus size={16} />
+          Upload PDF
+        </button>
+      </div>
     </aside>
   );
 }

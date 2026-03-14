@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Menu, LogOut } from 'lucide-react';
 
-export default function Header({ onMenuToggle, user, logout }) {
+export default function Header({ onMenuToggle, user, logout, selectedDoc }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -15,7 +15,7 @@ export default function Header({ onMenuToggle, user, logout }) {
   }, [open]);
 
   return (
-    <header className="h-14 bg-white border-b border-gray-200 flex items-center px-4 shrink-0 gap-3">
+    <header className="h-14 bg-white border-b border-gray-200 shadow-sm flex items-center px-5 shrink-0 gap-4">
       <button
         onClick={onMenuToggle}
         className="lg:hidden p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30"
@@ -23,7 +23,23 @@ export default function Header({ onMenuToggle, user, logout }) {
       >
         <Menu size={20} />
       </button>
-      <span className="text-[#2E75B6] font-bold text-lg">DocAssist</span>
+
+      {/* Document title — shown when a document is selected, hidden otherwise */}
+      {selectedDoc ? (
+        <div className="flex flex-col justify-center min-w-0">
+          <h1 className="text-base font-semibold text-gray-900 truncate leading-tight">
+            {selectedDoc.title}
+          </h1>
+          <p className="text-xs text-gray-400 leading-tight mt-0.5">
+            {[
+              selectedDoc.page_count && `${selectedDoc.page_count} pages`,
+              selectedDoc.created_at && new Date(selectedDoc.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            ].filter(Boolean).join(' · ')}
+          </p>
+        </div>
+      ) : (
+        <span className="text-[#2E75B6] font-bold text-lg tracking-tight">DocAssist</span>
+      )}
 
       {user && (
         <div ref={ref} className="ml-auto relative flex items-center">

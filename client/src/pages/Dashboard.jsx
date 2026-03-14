@@ -90,7 +90,12 @@ export default function Dashboard({ user, logout }) {
 
   return (
     <div className="flex flex-col h-screen bg-white">
-      <Header onMenuToggle={() => setSidebarOpen((v) => !v)} user={user} logout={logout} />
+      <Header
+        onMenuToggle={() => setSidebarOpen((v) => !v)}
+        user={user}
+        logout={logout}
+        selectedDoc={selectedDoc}
+      />
 
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
@@ -116,15 +121,15 @@ export default function Dashboard({ user, logout }) {
           {selectedDoc ? (
             <>
               {/* Tab bar */}
-              <div className="border-b border-gray-200 bg-white px-6 flex items-center gap-1 shrink-0">
+              <div className="border-b border-gray-200 bg-white px-6 flex items-center gap-0.5 shrink-0">
                 {TABS.map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded-t ${
+                    className={`px-4 py-3.5 text-sm border-b-2 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 rounded-t ${
                       activeTab === tab
-                        ? 'border-[#2E75B6] text-[#2E75B6]'
-                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                        ? 'border-[#2E75B6] text-[#2E75B6] font-semibold'
+                        : 'border-transparent text-gray-500 font-medium hover:text-gray-700 hover:border-gray-300'
                     }`}
                   >
                     <span className="flex items-center gap-1.5">
@@ -141,7 +146,7 @@ export default function Dashboard({ user, logout }) {
                   <button
                     onClick={() => !exporting && setShowExport((v) => !v)}
                     disabled={exporting}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 disabled:opacity-60"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2E75B6]/30 disabled:opacity-60"
                   >
                     {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
                     Export
@@ -203,7 +208,7 @@ export default function Dashboard({ user, logout }) {
               </div>
             </>
           ) : (
-            /* No document selected — proper empty state */
+            /* No document selected */
             <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center px-6">
               <UploadCloud size={48} className="text-gray-300" />
               <div>
